@@ -1,0 +1,17 @@
+target/
+out/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+.jqwik-database
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+tools/apache-maven-*/
+tools/*.zip
