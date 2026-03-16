@@ -11,13 +11,20 @@
     <section class="hero-card">
         <div>
             <p class="eyebrow">CRUD de Produtos</p>
-            <h1>Gestão web com fluxo simples e validado</h1>
+            <h1>Gestao web com fluxo simples e validado</h1>
             <p class="lead">Cadastre, edite, liste e remova produtos em uma interface focada em clareza.</p>
         </div>
         <a class="primary-link" th:href="@{/products/new}" data-testid="new-product-link">Novo produto</a>
     </section>
 
-    <div class="feedback success" th:if="${message}" data-testid="success-message" th:text="${message}"></div>
+    <div class="feedback success"
+         th:if="${message != null and messageType != 'error'}"
+         data-testid="success-message"
+         th:text="${message}"></div>
+    <div class="feedback error"
+         th:if="${message != null and messageType == 'error'}"
+         data-testid="error-message"
+         th:text="${message}"></div>
 
     <section class="table-card">
         <div class="section-header">
@@ -35,10 +42,10 @@
                 <tr>
                     <th>ID</th>
                     <th>Nome</th>
-                    <th>Preço</th>
+                    <th>Preco</th>
                     <th>Quantidade</th>
                     <th>Categoria</th>
-                    <th>Ações</th>
+                    <th>Acoes</th>
                 </tr>
                 </thead>
                 <tbody>

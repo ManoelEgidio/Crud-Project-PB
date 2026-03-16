@@ -5,7 +5,7 @@ import br.com.crud_project.domain.exception.ProductNotFoundException;
 import br.com.crud_project.domain.exception.ValidationException;
 import br.com.crud_project.domain.model.Category;
 import br.com.crud_project.domain.model.Product;
-import br.com.crud_project.service.ProductService;
+import br.com.crud_project.service.ProductCatalog;
 
 import java.util.InputMismatchException;
 import java.util.List;
@@ -19,10 +19,10 @@ public class ProductConsoleMenu {
     private static final int OPTION_DELETE = 5;
     private static final int OPTION_EXIT = 0;
 
-    private final ProductService service;
+    private final ProductCatalog service;
     private final Scanner scanner;
 
-    public ProductConsoleMenu(ProductService service) {
+    public ProductConsoleMenu(ProductCatalog service) {
         this.service = service;
         this.scanner = new Scanner(System.in);
     }

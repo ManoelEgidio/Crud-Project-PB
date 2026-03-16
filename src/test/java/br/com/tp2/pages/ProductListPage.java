@@ -49,6 +49,11 @@ public class ProductListPage {
         return messages.isEmpty() ? "" : messages.get(0).getText();
     }
 
+    public String errorMessage() {
+        List<WebElement> messages = driver.findElements(By.xpath("//*[@data-testid='error-message']"));
+        return messages.isEmpty() ? "" : messages.get(0).getText();
+    }
+
     public int productCount() {
         return driver.findElements(By.xpath("//*[@data-testid='product-row']")).size();
     }

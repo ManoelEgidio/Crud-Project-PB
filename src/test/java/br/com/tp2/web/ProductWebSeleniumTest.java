@@ -133,15 +133,29 @@ class ProductWebSeleniumTest {
                 .selectCategory("OFFICE")
                 .submitExpectingForm();
 
-        assertEquals("Já existe produto com esse ID.", formPage.errorMessage());
+        assertEquals("Ja existe produto com esse ID.", formPage.errorMessage());
+    }
+
+    @Test
+    void shouldRejectUnsafeCharactersWithoutBreakingInterface() {
+        ProductFormPage formPage = new ProductFormPage(driver, baseUrl)
+                .openCreateForm()
+                .typeId("x1")
+                .typeName("<script>")
+                .typePrice("10.00")
+                .typeQuantity("1")
+                .selectCategory("FOOD")
+                .submitExpectingForm();
+
+        assertEquals("Nome do produto contem caracteres invalidos.", formPage.errorMessage());
     }
 
     private static Stream<Arguments> invalidProducts() {
         return Stream.of(
-                Arguments.of("1", "", "10.00", "1", "FOOD", "Nome do produto é obrigatório."),
-                Arguments.of("2", "Arroz", "abc", "1", "FOOD", "Preço e quantidade devem ser numéricos."),
-                Arguments.of("3", "Arroz", "10.00", "-1", "FOOD", "Quantidade não pode ser negativa."),
-                Arguments.of("4", "Arroz", "10.00", "2", "", "Categoria inválida.")
+                Arguments.of("1", "", "10.00", "1", "FOOD", "Nome do produto e obrigatorio."),
+                Arguments.of("2", "Arroz", "abc", "1", "FOOD", "Preco e quantidade devem ser numericos."),
+                Arguments.of("3", "Arroz", "10.00", "-1", "FOOD", "Quantidade nao pode ser negativa."),
+                Arguments.of("4", "Arroz", "10.00", "2", "", "Categoria invalida.")
         );
     }
 }

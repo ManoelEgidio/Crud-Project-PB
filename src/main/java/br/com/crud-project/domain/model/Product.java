@@ -5,6 +5,9 @@ import br.com.crud_project.domain.exception.ValidationException;
 import java.util.Objects;
 
 public final class Product {
+    private static final int MAX_ID_LENGTH = 12;
+    private static final int MAX_NAME_LENGTH = 50;
+
     private final String id;
     private final String name;
     private final double price;
@@ -52,39 +55,62 @@ public final class Product {
     public String categoryDescription() {
         return switch (category) {
             case FOOD -> "Alimentos";
-            case ELECTRONICS -> "Eletrônicos";
-            case OFFICE -> "Escritório";
+            case ELECTRONICS -> "Eletronicos";
+            case OFFICE -> "Escritorio";
         };
     }
 
     private static void validateId(String id) {
         if (id == null || id.isBlank()) {
-            throw new ValidationException("ID do produto é obrigatório.");
+            throw new ValidationException("ID do produto e obrigatorio.");
+        }
+        if (id.trim().length() > MAX_ID_LENGTH) {
+            throw new ValidationException("ID do produto deve ter no maximo 12 caracteres.");
+        }
+        if (containsUnsafeCharacters(id)) {
+            throw new ValidationException("ID do produto contem caracteres invalidos.");
         }
     }
 
     private static void validateName(String name) {
         if (name == null || name.isBlank()) {
-            throw new ValidationException("Nome do produto é obrigatório.");
+            throw new ValidationException("Nome do produto e obrigatorio.");
+        }
+        if (name.trim().length() > MAX_NAME_LENGTH) {
+            throw new ValidationException("Nome do produto deve ter no maximo 50 caracteres.");
+        }
+        if (containsUnsafeCharacters(name)) {
+            throw new ValidationException("Nome do produto contem caracteres invalidos.");
         }
     }
 
     private static void validatePrice(double price) {
         if (price <= 0) {
-            throw new ValidationException("Preço deve ser maior que zero.");
+            throw new ValidationException("Preco deve ser maior que zero.");
         }
     }
 
     private static void validateQuantity(int quantity) {
         if (quantity < 0) {
-            throw new ValidationException("Quantidade não pode ser negativa.");
+            throw new ValidationException("Quantidade nao pode ser negativa.");
         }
     }
 
     private static void validateCategory(Category category) {
         if (category == null) {
-            throw new ValidationException("Categoria é obrigatória.");
+            throw new ValidationException("Categoria e obrigatoria.");
         }
+    }
+
+    private static boolean containsUnsafeCharacters(String value) {
+        return value.chars().anyMatch(character ->
+                Character.isISOControl(character)
+                        || character == '<'
+                        || character == '>'
+                        || character == '{'
+                        || character == '}'
+                        || character == ';'
+        );
     }
 
     @Override

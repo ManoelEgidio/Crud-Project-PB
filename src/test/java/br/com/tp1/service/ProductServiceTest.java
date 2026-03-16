@@ -2,6 +2,8 @@ package br.com.crud_project.service;
 
 import br.com.crud_project.domain.exception.DuplicateProductException;
 import br.com.crud_project.domain.exception.ProductNotFoundException;
+import br.com.crud_project.domain.exception.ServiceUnavailableException;
+import br.com.crud_project.domain.exception.SystemOverloadException;
 import br.com.crud_project.domain.exception.ValidationException;
 import br.com.crud_project.domain.model.Category;
 import br.com.crud_project.domain.model.Product;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -117,7 +120,7 @@ class ProductServiceTest {
     void shouldDescribeCategoryWithoutDefaultCase() {
         Product product = new Product("1", "Caneta", 2.5, 10, Category.OFFICE);
 
-        assertEquals("Escritório", product.categoryDescription());
+        assertEquals("Escritorio", product.categoryDescription());
     }
 
     @Test
@@ -125,7 +128,7 @@ class ProductServiceTest {
         NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new ProductService(null));
 
-        assertTrue(exception.getMessage().contains("Repositório"));
+        assertTrue(exception.getMessage().contains("Repositorio"));
     }
 
     @Test
@@ -142,5 +145,63 @@ class ProductServiceTest {
                 () -> service.update(null));
 
         assertTrue(exception.getMessage().contains("Produto"));
+    }
+
+    @Test
+    void shouldFailGracefullyWhenCatalogCapacityIsReached() {
+        ProductService limitedService = new ProductService(new InMemoryProductRepository(), 1);
+        limitedService.create(new Product("1", "Base", 10.0, 1, Category.FOOD));
+
+        assertThrows(SystemOverloadException.class,
+                () -> limitedService.create(new Product("2", "Extra", 20.0, 1, Category.FOOD)));
+    }
+
+    @Test
+    void shouldWrapUnexpectedRepositoryErrors() {
+        ProductRepository repository = new ProductRepository() {
+            @Override
+            public void save(Product product) {
+                throw new IllegalStateException("network down");
+            }
+
+            @Override
+            public Optional<Product> findById(String id) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Product> findAll() {
+                throw new IllegalStateException("network down");
+            }
+
+            @Override
+            public void update(Product product) {
+                throw new IllegalStateException("network down");
+            }
+
+            @Override
+            public void deleteById(String id) {
+                throw new IllegalStateException("network down");
+            }
+
+            @Override
+            public void deleteAll() {
+            }
+
+            @Override
+            public boolean existsById(String id) {
+                return false;
+            }
+
+            @Override
+            public int count() {
+                return 0;
+            }
+        };
+
+        ProductService failingService = new ProductService(repository);
+
+        assertThrows(ServiceUnavailableException.class,
+                () -> failingService.findAll());
     }
 }

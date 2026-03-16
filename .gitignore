@@ -1,4 +1,6 @@
 target/
+build/
+.gradle/
 out/
 .idea/
 *.iml
@@ -14,5 +16,6 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 tools/apache-maven-*/
+tools/gradle-*/
 tools/*.zip
 docs
