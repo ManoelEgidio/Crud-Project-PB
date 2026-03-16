@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Produto</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page-shell">
+    <section class="hero-card compact">
+        <div>
+            <p class="eyebrow">Interface Web</p>
+            <h1 th:text="${pageTitle}">Novo produto</h1>
+            <p class="lead">Preencha os campos obrigatórios para manter o catálogo consistente.</p>
+        </div>
+        <a class="secondary-link" th:href="@{/products}" data-testid="back-link">Voltar para listagem</a>
+    </section>
+
+    <section class="form-card">
+        <div class="feedback error" th:if="${errorMessage}" data-testid="error-message" th:text="${errorMessage}"></div>
+
+        <form th:action="${formAction}" method="post" data-testid="product-form">
+            <div class="grid">
+                <label>
+                    <span>ID</span>
+                    <input data-testid="product-id" type="text" name="id" th:value="${form.id()}" th:readonly="${editMode}">
+                </label>
+
+                <label>
+                    <span>Nome</span>
+                    <input data-testid="product-name" type="text" name="name" th:value="${form.name()}">
+                </label>
+
+                <label>
+                    <span>Preço</span>
+                    <input data-testid="product-price" type="text" name="price" th:value="${form.price()}">
+                </label>
+
+                <label>
+                    <span>Quantidade</span>
+                    <input data-testid="product-quantity" type="text" name="quantity" th:value="${form.quantity()}">
+                </label>
+
+                <label class="full-width">
+                    <span>Categoria</span>
+                    <select data-testid="product-category" name="category">
+                        <option value="">Selecione</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.name()}"
+                                th:text="${category.name()}"
+                                th:selected="${form.category() == category.name()}">
+                            FOOD
+                        </option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button class="primary-button" type="submit" data-testid="submit-button"
+                        th:text="${editMode} ? 'Salvar alterações' : 'Cadastrar produto'">
+                    Cadastrar produto
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

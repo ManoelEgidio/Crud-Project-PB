@@ -3,13 +3,13 @@ package br.com.crud_project.repository;
 import br.com.crud_project.domain.model.Product;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryProductRepository implements ProductRepository {
-    private final Map<String, Product> products = new HashMap<>();
+    private final Map<String, Product> products = new ConcurrentHashMap<>();
 
     @Override
     public void save(Product product) {
@@ -34,6 +34,11 @@ public class InMemoryProductRepository implements ProductRepository {
     @Override
     public void deleteById(String id) {
         products.remove(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        products.clear();
     }
 
     @Override

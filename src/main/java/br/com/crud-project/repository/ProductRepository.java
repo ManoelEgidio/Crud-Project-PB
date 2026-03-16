@@ -11,6 +11,7 @@ public interface ProductRepository {
     List<Product> findAll();
     void update(Product product);
     void deleteById(String id);
+    void deleteAll();
     boolean existsById(String id);
     int count();
 }

@@ -15,3 +15,4 @@ pom.xml.next
 release.properties
 tools/apache-maven-*/
 tools/*.zip
+docs

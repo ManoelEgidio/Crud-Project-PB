@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="page-shell">
+    <section class="hero-card">
+        <div>
+            <p class="eyebrow">CRUD de Produtos</p>
+            <h1>Gestão web com fluxo simples e validado</h1>
+            <p class="lead">Cadastre, edite, liste e remova produtos em uma interface focada em clareza.</p>
+        </div>
+        <a class="primary-link" th:href="@{/products/new}" data-testid="new-product-link">Novo produto</a>
+    </section>
+
+    <div class="feedback success" th:if="${message}" data-testid="success-message" th:text="${message}"></div>
+
+    <section class="table-card">
+        <div class="section-header">
+            <h2>Produtos cadastrados</h2>
+            <span th:text="${#lists.size(products)} + ' item(ns)'">0 item(ns)</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(products)}" class="empty-state" data-testid="empty-state">
+            Nenhum produto cadastrado.
+        </div>
+
+        <div class="table-wrapper" th:if="${!#lists.isEmpty(products)}">
+            <table data-testid="products-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th>Categoria</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}" data-testid="product-row" th:attr="data-product-id=${product.id()}">
+                    <td th:text="${product.id()}">1</td>
+                    <td th:text="${product.name()}">Notebook</td>
+                    <td th:text="${#numbers.formatDecimal(product.price(), 1, 'POINT', 2, 'COMMA')}">10.00</td>
+                    <td th:text="${product.quantity()}">1</td>
+                    <td th:text="${product.categoryDescription()}">Categoria</td>
+                    <td class="actions-cell">
+                        <a class="secondary-link"
+                           th:href="@{/products/{id}/edit(id=${product.id()})}"
+                           data-testid="edit-link">Editar</a>
+                        <form th:action="@{/products/{id}/delete(id=${product.id()})}" method="post">
+                            <button class="danger-button" type="submit" data-testid="delete-button">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>
