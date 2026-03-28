@@ -1,0 +1,311 @@
+name: Delivery
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Ambiente de deploy
+        required: true
+        type: choice
+        default: testing
+        options:
+          - development
+          - testing
+          - production
+
+concurrency:
+  group: delivery-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  JAVA_VERSION: "17"
+
+jobs:
+  plan:
+    name: Resolve target environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment_name: ${{ steps.plan.outputs.environment_name }}
+      service_name: ${{ steps.plan.outputs.service_name }}
+      spring_profile: ${{ steps.plan.outputs.spring_profile }}
+      min_scale: ${{ steps.plan.outputs.min_scale }}
+      max_scale: ${{ steps.plan.outputs.max_scale }}
+
+    steps:
+      - name: Decide deployment target
+        id: plan
+        shell: bash
+        env:
+          SERVICE_PREFIX: ${{ vars.CLOUD_RUN_SERVICE_PREFIX }}
+          PROFILE_DEV: ${{ vars.SPRING_PROFILE_DEV }}
+          PROFILE_TEST: ${{ vars.SPRING_PROFILE_TEST }}
+          PROFILE_PROD: ${{ vars.SPRING_PROFILE_PROD }}
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TARGET_ENV="production"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TARGET_ENV="${{ github.event.inputs.target_environment }}"
+          else
+            TARGET_ENV="development"
+          fi
+
+          PREFIX="${SERVICE_PREFIX:-crud-project-pb}"
+          PROFILE_DEV="${PROFILE_DEV:-dev}"
+          PROFILE_TEST="${PROFILE_TEST:-test}"
+          PROFILE_PROD="${PROFILE_PROD:-prod}"
+
+          case "$TARGET_ENV" in
+            development)
+              SPRING_PROFILE="$PROFILE_DEV"
+              SERVICE_NAME="${PREFIX}-dev"
+              MIN_SCALE="0"
+              MAX_SCALE="1"
+              ;;
+            testing)
+              SPRING_PROFILE="$PROFILE_TEST"
+              SERVICE_NAME="${PREFIX}-test"
+              MIN_SCALE="0"
+              MAX_SCALE="1"
+              ;;
+            production)
+              SPRING_PROFILE="$PROFILE_PROD"
+              SERVICE_NAME="${PREFIX}-prod"
+              MIN_SCALE="1"
+              MAX_SCALE="2"
+              ;;
+            *)
+              echo "Ambiente invalido: $TARGET_ENV" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "environment_name=$TARGET_ENV" >> "$GITHUB_OUTPUT"
+          echo "service_name=$SERVICE_NAME" >> "$GITHUB_OUTPUT"
+          echo "spring_profile=$SPRING_PROFILE" >> "$GITHUB_OUTPUT"
+          echo "min_scale=$MIN_SCALE" >> "$GITHUB_OUTPUT"
+          echo "max_scale=$MAX_SCALE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish planning summary
+        shell: bash
+        run: |
+          {
+            echo "## Delivery plan"
+            echo
+            echo "- Ambiente: \`${{ steps.plan.outputs.environment_name }}\`"
+            echo "- Servico Cloud Run: \`${{ steps.plan.outputs.service_name }}\`"
+            echo "- Profile Spring: \`${{ steps.plan.outputs.spring_profile }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build_and_push:
+    name: Build and Push Container
+    runs-on: ubuntu-latest
+    needs: plan
+    outputs:
+      image_uri: ${{ steps.image.outputs.image_uri }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make wrapper executable
+        run: chmod +x gradlew
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        shell: bash
+        run: gcloud auth configure-docker "${{ vars.GCP_REGION }}-docker.pkg.dev" --quiet
+
+      - name: Validate build before image creation
+        shell: bash
+        run: |
+          echo "::group::Gradle verification"
+          ./gradlew clean check bootJar
+          echo "::endgroup::"
+
+      - name: Compute image URI
+        id: image
+        shell: bash
+        run: |
+          IMAGE_URI="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REPOSITORY }}/${{ needs.plan.outputs.service_name }}:${GITHUB_SHA}"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+
+      - name: Build container image
+        shell: bash
+        run: |
+          echo "::group::Docker build"
+          docker build --tag "$IMAGE_URI" .
+          echo "::endgroup::"
+
+      - name: Push container image
+        shell: bash
+        run: |
+          echo "::group::Docker push"
+          docker push "$IMAGE_URI"
+          echo "::endgroup::"
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-build-artifacts
+          path: |
+            build/reports/tests/test
+            build/reports/jacoco/test
+            build/libs/*.jar
+
+      - name: Publish build summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Build and push summary"
+            echo
+            echo "- Ambiente alvo: \`${{ needs.plan.outputs.environment_name }}\`"
+            echo "- Imagem: \`${{ steps.image.outputs.image_uri }}\`"
+            echo "- Resultado: \`${{ job.status }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    needs:
+      - plan
+      - build_and_push
+    environment: ${{ needs.plan.outputs.environment_name }}
+    outputs:
+      service_url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Deploy service
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          service: ${{ needs.plan.outputs.service_name }}
+          region: ${{ vars.GCP_REGION }}
+          image: ${{ needs.build_and_push.outputs.image_uri }}
+          env_vars: |
+            APP_ENVIRONMENT=${{ needs.plan.outputs.environment_name }}
+            SPRING_PROFILES_ACTIVE=${{ needs.plan.outputs.spring_profile }}
+          env_vars_update_strategy: merge
+          flags: >-
+            --allow-unauthenticated
+            --port=8080
+            --min-instances=${{ needs.plan.outputs.min_scale }}
+            --max-instances=${{ needs.plan.outputs.max_scale }}
+            --concurrency=1
+
+      - name: Publish deployment summary
+        shell: bash
+        run: |
+          {
+            echo "## Deploy summary"
+            echo
+            echo "- Ambiente: \`${{ needs.plan.outputs.environment_name }}\`"
+            echo "- Servico: \`${{ needs.plan.outputs.service_name }}\`"
+            echo "- URL: ${{ steps.deploy.outputs.url }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  post_deploy_validation:
+    name: Post-deploy Validation
+    runs-on: ubuntu-latest
+    needs:
+      - plan
+      - deploy
+    environment: ${{ needs.plan.outputs.environment_name }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make wrapper executable
+        run: chmod +x gradlew
+
+      - name: Run Selenium post-deploy tests
+        shell: bash
+        env:
+          APP_BASE_URL: ${{ needs.deploy.outputs.service_url }}
+        run: |
+          echo "::group::Post-deploy Selenium"
+          ./gradlew postDeployTest
+          echo "::endgroup::"
+
+      - name: Run DAST baseline scan
+        shell: bash
+        env:
+          APP_BASE_URL: ${{ needs.deploy.outputs.service_url }}
+        run: |
+          echo "::group::OWASP ZAP baseline"
+          docker run --rm -t \
+            -v "${PWD}:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t "$APP_BASE_URL" -r zap-report.html -J zap-report.json -w zap-report.md -I
+          echo "::endgroup::"
+
+      - name: Upload post-deploy artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-reports
+          path: |
+            build/reports/tests/postDeployTest
+            build/test-results/postDeployTest
+            zap-report.html
+            zap-report.json
+            zap-report.md
+
+      - name: Publish validation summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Post-deploy summary"
+            echo
+            echo "- Ambiente: \`${{ needs.plan.outputs.environment_name }}\`"
+            echo "- URL validada: ${{ needs.deploy.outputs.service_url }}"
+            echo "- Resultado: \`${{ job.status }}\`"
+            echo "- Evidencias: artefatos \`post-deploy-reports\`"
+          } >> "$GITHUB_STEP_SUMMARY"

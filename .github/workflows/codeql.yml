@@ -50,3 +50,15 @@ jobs:
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3
+
+      - name: Publish CodeQL summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## CodeQL summary"
+            echo
+            echo "- Branch: \`${GITHUB_REF}\`"
+            echo "- Resultado: \`${{ job.status }}\`"
+            echo "- Linguagem analisada: \`java-kotlin\`"
+          } >> "$GITHUB_STEP_SUMMARY"

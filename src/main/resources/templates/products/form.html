@@ -12,7 +12,7 @@
         <div>
             <p class="eyebrow">Interface Web</p>
             <h1 th:text="${pageTitle}">Novo produto</h1>
-            <p class="lead">Preencha os campos obrigatórios para manter o catálogo consistente.</p>
+            <p class="lead">Preencha os campos obrigatorios para manter o catalogo consistente.</p>
         </div>
         <a class="secondary-link" th:href="@{/products}" data-testid="back-link">Voltar para listagem</a>
     </section>
@@ -33,7 +33,7 @@
                 </label>
 
                 <label>
-                    <span>Preço</span>
+                    <span>Preco</span>
                     <input data-testid="product-price" type="text" name="price" th:value="${form.price()}">
                 </label>
 
@@ -58,7 +58,7 @@
 
             <div class="form-actions">
                 <button class="primary-button" type="submit" data-testid="submit-button"
-                        th:text="${editMode} ? 'Salvar alterações' : 'Cadastrar produto'">
+                        th:text="${editMode} ? 'Salvar alteracoes' : 'Cadastrar produto'">
                     Cadastrar produto
                 </button>
             </div>

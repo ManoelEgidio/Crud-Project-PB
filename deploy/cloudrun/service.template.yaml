@@ -1,0 +1,21 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ${SERVICE_NAME}
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "${MIN_SCALE}"
+        autoscaling.knative.dev/maxScale: "${MAX_SCALE}"
+    spec:
+      containerConcurrency: 1
+      containers:
+        - image: ${IMAGE_URI}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENVIRONMENT
+              value: ${APP_ENVIRONMENT}
+            - name: SPRING_PROFILES_ACTIVE
+              value: ${SPRING_PROFILE}

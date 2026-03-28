@@ -7,7 +7,6 @@ import br.com.crud_project.domain.model.Category;
 import br.com.crud_project.domain.model.Product;
 import br.com.crud_project.service.ProductCatalog;
 
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -32,14 +31,14 @@ public class ProductConsoleMenu {
 
         while (running) {
             printMenu();
-            int option = readInt("Escolha uma opção: ");
+            int option = readInt("Escolha uma opcao: ");
 
             try {
                 running = handleOption(option);
             } catch (ValidationException | DuplicateProductException | ProductNotFoundException exception) {
                 System.out.println("Erro: " + exception.getMessage());
             } catch (IllegalArgumentException exception) {
-                System.out.println("Erro: opção inválida.");
+                System.out.println("Erro: opcao invalida.");
             }
 
             System.out.println();
@@ -72,7 +71,7 @@ public class ProductConsoleMenu {
                 System.out.println("Encerrando sistema...");
                 yield false;
             }
-            default -> throw new IllegalArgumentException("Opção inválida.");
+            default -> throw new IllegalArgumentException("Opcao invalida.");
         };
     }
 
@@ -115,7 +114,7 @@ public class ProductConsoleMenu {
         String idMessage = createMode ? "Informe o ID: " : "Informe o ID do produto existente: ";
         String id = readText(idMessage);
         String name = readText("Informe o nome: ");
-        double price = readDouble("Informe o preço: ");
+        double price = readDouble("Informe o preco: ");
         int quantity = readInt("Informe a quantidade em estoque: ");
         Category category = readCategory();
 
@@ -123,12 +122,12 @@ public class ProductConsoleMenu {
     }
 
     private Category readCategory() {
-        System.out.println("Categorias disponíveis:");
+        System.out.println("Categorias disponiveis:");
         for (Category category : Category.values()) {
             System.out.printf("- %s (%s)%n", category.name(), switch (category) {
                 case FOOD -> "Alimentos";
-                case ELECTRONICS -> "Eletrônicos";
-                case OFFICE -> "Escritório";
+                case ELECTRONICS -> "Eletronicos";
+                case OFFICE -> "Escritorio";
             });
         }
 
@@ -145,10 +144,9 @@ public class ProductConsoleMenu {
         while (true) {
             try {
                 System.out.print(message);
-                int value = Integer.parseInt(scanner.nextLine().trim());
-                return value;
+                return Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException exception) {
-                System.out.println("Valor inteiro inválido. Tente novamente.");
+                System.out.println("Valor inteiro invalido. Tente novamente.");
             }
         }
     }
@@ -157,17 +155,16 @@ public class ProductConsoleMenu {
         while (true) {
             try {
                 System.out.print(message);
-                double value = Double.parseDouble(scanner.nextLine().trim().replace(',', '.'));
-                return value;
+                return Double.parseDouble(scanner.nextLine().trim().replace(',', '.'));
             } catch (NumberFormatException exception) {
-                System.out.println("Valor decimal inválido. Tente novamente.");
+                System.out.println("Valor decimal invalido. Tente novamente.");
             }
         }
     }
 
     private void printProduct(Product product) {
         System.out.printf(
-                "ID: %s | Nome: %s | Preço: %.2f | Quantidade: %d | Categoria: %s%n",
+                "ID: %s | Nome: %s | Preco: %.2f | Quantidade: %d | Categoria: %s%n",
                 product.id(),
                 product.name(),
                 product.price(),
