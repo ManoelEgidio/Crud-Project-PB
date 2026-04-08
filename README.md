@@ -40,5 +40,6 @@ Para rodar a suíte principal de testes:
 Para validar uma aplicação já publicada:
 
 ```bash
-./gradlew postDeployTest -Papp.base-url=https://sua-url
+.\gradlew.bat postDeployTest "-Papp.base-url=https://crud-project-pb-dev-187480176525.us-central1.run.app"
+Start-Process ".\build\reports\tests\postDeployTest\index.html"
 ```
