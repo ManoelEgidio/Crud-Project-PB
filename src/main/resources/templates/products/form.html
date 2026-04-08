@@ -10,11 +10,11 @@
 <main class="page-shell">
     <section class="hero-card compact">
         <div>
-            <p class="eyebrow">Interface Web</p>
+            <p class="eyebrow">Cadastro</p>
             <h1 th:text="${pageTitle}">Novo produto</h1>
-            <p class="lead">Preencha os campos obrigatorios para manter o catalogo consistente.</p>
+            <p class="lead">Revise os dados antes de salvar para manter o catalogo consistente.</p>
         </div>
-        <a class="secondary-link" th:href="@{/products}" data-testid="back-link">Voltar para listagem</a>
+        <a class="secondary-link" th:href="@{/products}" data-testid="back-link">Voltar</a>
     </section>
 
     <section class="form-card">
@@ -58,8 +58,8 @@
 
             <div class="form-actions">
                 <button class="primary-button" type="submit" data-testid="submit-button"
-                        th:text="${editMode} ? 'Salvar alteracoes' : 'Cadastrar produto'">
-                    Cadastrar produto
+                        th:text="${editMode} ? 'Atualizar produto' : 'Salvar produto'">
+                    Salvar produto
                 </button>
             </div>
         </form>

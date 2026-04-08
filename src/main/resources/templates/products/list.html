@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos</title>
+    <title>Catalogo de produtos</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
 <main class="page-shell">
     <section class="hero-card">
         <div>
-            <p class="eyebrow">CRUD de Produtos</p>
-            <h1>Gestao web com fluxo simples e validado</h1>
-            <p class="lead">Cadastre, edite, liste e remova produtos em uma interface focada em clareza.</p>
+            <p class="eyebrow">Catalogo</p>
+            <h1>Gestao de produtos</h1>
+            <p class="lead">Consulte o catalogo, ajuste dados de estoque e mantenha os registros atualizados.</p>
         </div>
         <a class="primary-link" th:href="@{/products/new}" data-testid="new-product-link">Novo produto</a>
     </section>
@@ -28,12 +28,12 @@
 
     <section class="table-card">
         <div class="section-header">
-            <h2>Produtos cadastrados</h2>
+            <h2>Itens cadastrados</h2>
             <span th:text="${#lists.size(products)} + ' item(ns)'">0 item(ns)</span>
         </div>
 
         <div th:if="${#lists.isEmpty(products)}" class="empty-state" data-testid="empty-state">
-            Nenhum produto cadastrado.
+            Nenhum item disponivel.
         </div>
 
         <div class="table-wrapper" th:if="${!#lists.isEmpty(products)}">

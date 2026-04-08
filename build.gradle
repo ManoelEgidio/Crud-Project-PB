@@ -8,7 +8,7 @@ plugins {
 
 group = 'br.com.crud_project'
 version = '1.0.0'
-description = 'Sistema CRUD integrado com interface web e automacao CI/CD'
+description = 'Catalogo de produtos com interface web, testes automatizados e deploy em container'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -91,7 +91,7 @@ tasks.named('check') {
 
 tasks.register('runConsole', JavaExec) {
     group = 'application'
-    description = 'Executa a interface de console integrada ao mesmo catalogo da aplicacao.'
+    description = 'Executa a interface de console usando o mesmo catalogo da aplicacao.'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'br.com.crud_project.app.Main'
     standardInput = System.in

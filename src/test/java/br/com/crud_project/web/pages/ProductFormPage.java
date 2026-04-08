@@ -1,4 +1,4 @@
-package br.com.tp2.pages;
+package br.com.crud_project.web.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -56,17 +56,17 @@ public class ProductFormPage {
     }
 
     public ProductFormPage submitExpectingForm() {
-        driver.findElement(By.xpath("//*[@data-testid='submit-button']")).click();
+        driver.findElement(By.cssSelector("[data-testid='submit-button']")).click();
         return this;
     }
 
     public ProductListPage submitExpectingList() {
-        driver.findElement(By.xpath("//*[@data-testid='submit-button']")).click();
+        driver.findElement(By.cssSelector("[data-testid='submit-button']")).click();
         return new ProductListPage(driver, baseUrl);
     }
 
     public String errorMessage() {
-        List<WebElement> messages = driver.findElements(By.xpath("//*[@data-testid='error-message']"));
+        List<WebElement> messages = driver.findElements(By.cssSelector("[data-testid='error-message']"));
         return messages.isEmpty() ? "" : messages.get(0).getText();
     }
 

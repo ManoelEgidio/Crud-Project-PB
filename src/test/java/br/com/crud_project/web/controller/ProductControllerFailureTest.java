@@ -1,4 +1,4 @@
-package br.com.tp3.web;
+package br.com.crud_project.web.controller;
 
 import br.com.crud_project.domain.exception.ProductNotFoundException;
 import br.com.crud_project.domain.exception.ServiceTimeoutException;

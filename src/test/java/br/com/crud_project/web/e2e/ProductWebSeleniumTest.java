@@ -1,9 +1,9 @@
-package br.com.tp2.web;
+package br.com.crud_project.web.e2e;
 
 import br.com.crud_project.repository.ProductRepository;
 import br.com.crud_project.web.WebApplication;
-import br.com.tp2.pages.ProductFormPage;
-import br.com.tp2.pages.ProductListPage;
+import br.com.crud_project.web.pages.ProductFormPage;
+import br.com.crud_project.web.pages.ProductListPage;
 import org.htmlunit.BrowserVersion;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

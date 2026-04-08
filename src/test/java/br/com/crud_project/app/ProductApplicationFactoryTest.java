@@ -1,4 +1,4 @@
-package br.com.tp4.app;
+package br.com.crud_project.app;
 
 import br.com.crud_project.app.ProductApplicationFactory;
 import br.com.crud_project.app.ProductApplicationServices;

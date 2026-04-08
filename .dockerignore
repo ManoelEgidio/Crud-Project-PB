@@ -1,6 +1,7 @@
 .git
 .github
 .gradle
+bin
 build
 target
 out
@@ -8,3 +9,7 @@ tools
 docs
 *.iml
 .idea
+.jqwik-database
+zap-report.html
+zap-report.json
+zap-report.md

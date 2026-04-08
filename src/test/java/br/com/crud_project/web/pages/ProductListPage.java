@@ -1,4 +1,4 @@
-package br.com.tp2.pages;
+package br.com.crud_project.web.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -21,40 +21,40 @@ public class ProductListPage {
     }
 
     public ProductFormPage goToNewProductPage() {
-        driver.findElement(By.xpath("//*[@data-testid='new-product-link']")).click();
+        driver.findElement(By.cssSelector("[data-testid='new-product-link']")).click();
         return new ProductFormPage(driver, baseUrl);
     }
 
     public ProductFormPage goToEditPage(String id) {
-        driver.findElement(By.xpath("//*[@data-product-id='" + id + "']//*[@data-testid='edit-link']")).click();
+        driver.findElement(By.cssSelector("[data-product-id='" + id + "'] [data-testid='edit-link']")).click();
         return new ProductFormPage(driver, baseUrl);
     }
 
     public ProductListPage deleteProduct(String id) {
-        driver.findElement(By.xpath("//*[@data-product-id='" + id + "']//*[@data-testid='delete-button']")).click();
+        driver.findElement(By.cssSelector("[data-product-id='" + id + "'] [data-testid='delete-button']")).click();
         return this;
     }
 
     public boolean hasProduct(String id, String name) {
-        List<WebElement> rows = driver.findElements(By.xpath("//*[@data-product-id='" + id + "']"));
+        List<WebElement> rows = driver.findElements(By.cssSelector("[data-product-id='" + id + "']"));
         return rows.stream().anyMatch(row -> row.getText().contains(name));
     }
 
     public boolean isEmptyStateVisible() {
-        return !driver.findElements(By.xpath("//*[@data-testid='empty-state']")).isEmpty();
+        return !driver.findElements(By.cssSelector("[data-testid='empty-state']")).isEmpty();
     }
 
     public String successMessage() {
-        List<WebElement> messages = driver.findElements(By.xpath("//*[@data-testid='success-message']"));
+        List<WebElement> messages = driver.findElements(By.cssSelector("[data-testid='success-message']"));
         return messages.isEmpty() ? "" : messages.get(0).getText();
     }
 
     public String errorMessage() {
-        List<WebElement> messages = driver.findElements(By.xpath("//*[@data-testid='error-message']"));
+        List<WebElement> messages = driver.findElements(By.cssSelector("[data-testid='error-message']"));
         return messages.isEmpty() ? "" : messages.get(0).getText();
     }
 
     public int productCount() {
-        return driver.findElements(By.xpath("//*[@data-testid='product-row']")).size();
+        return driver.findElements(By.cssSelector("[data-testid='product-row']")).size();
     }
 }
