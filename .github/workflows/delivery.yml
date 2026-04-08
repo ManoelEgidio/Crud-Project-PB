@@ -349,8 +349,8 @@ jobs:
         run: |
           echo "::group::OWASP ZAP baseline"
           mkdir -p .zap
+          chmod -R 777 .zap
           docker run --rm -t \
-            --user "$(id -u):$(id -g)" \
             -v "${PWD}/.zap:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t "$APP_BASE_URL" -r zap-report.html -J zap-report.json -w zap-report.md -I
