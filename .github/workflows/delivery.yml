@@ -348,10 +348,15 @@ jobs:
           APP_BASE_URL: ${{ needs.deploy.outputs.service_url }}
         run: |
           echo "::group::OWASP ZAP baseline"
+          mkdir -p .zap
           docker run --rm -t \
-            -v "${PWD}:/zap/wrk:rw" \
+            --user "$(id -u):$(id -g)" \
+            -v "${PWD}/.zap:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t "$APP_BASE_URL" -r zap-report.html -J zap-report.json -w zap-report.md -I
+          cp .zap/zap-report.html .
+          cp .zap/zap-report.json .
+          cp .zap/zap-report.md .
           echo "::endgroup::"
 
       - name: Upload post-deploy artifacts
