@@ -110,6 +110,7 @@ jobs:
     name: Build and Push Container
     runs-on: ubuntu-latest
     needs: plan
+    environment: ${{ needs.plan.outputs.environment_name }}
     outputs:
       image_uri: ${{ steps.image.outputs.image_uri }}
 
