@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalogo de produtos</title>
+    <title>Catálogo de produtos</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 <body>
 <main class="page-shell">
     <section class="hero-card">
         <div>
-            <p class="eyebrow">Catalogo</p>
-            <h1>Gestao de produtos</h1>
-            <p class="lead">Consulte o catalogo, ajuste dados de estoque e mantenha os registros atualizados.</p>
+            <p class="eyebrow">Catálogo</p>
+            <h1>Gestão de produtos</h1>
+            <p class="lead">Consulte o catálogo, ajuste dados de estoque e mantenha os registros atualizados.</p>
         </div>
         <a class="primary-link" th:href="@{/products/new}" data-testid="new-product-link">Novo produto</a>
     </section>
@@ -33,7 +33,7 @@
         </div>
 
         <div th:if="${#lists.isEmpty(products)}" class="empty-state" data-testid="empty-state">
-            Nenhum item disponivel.
+            Nenhum item disponível.
         </div>
 
         <div class="table-wrapper" th:if="${!#lists.isEmpty(products)}">
@@ -42,10 +42,10 @@
                 <tr>
                     <th>ID</th>
                     <th>Nome</th>
-                    <th>Preco</th>
+                    <th>Preço</th>
                     <th>Quantidade</th>
                     <th>Categoria</th>
-                    <th>Acoes</th>
+                    <th>Ações</th>
                 </tr>
                 </thead>
                 <tbody>

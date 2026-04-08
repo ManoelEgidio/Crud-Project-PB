@@ -31,14 +31,14 @@ public class ProductConsoleMenu {
 
         while (running) {
             printMenu();
-            int option = readInt("Escolha uma opcao: ");
+            int option = readInt("Escolha uma opção: ");
 
             try {
                 running = handleOption(option);
             } catch (ValidationException | DuplicateProductException | ProductNotFoundException exception) {
                 System.out.println("Erro: " + exception.getMessage());
             } catch (IllegalArgumentException exception) {
-                System.out.println("Erro: opcao invalida.");
+                System.out.println("Erro: opção inválida.");
             }
 
             System.out.println();
@@ -71,7 +71,7 @@ public class ProductConsoleMenu {
                 System.out.println("Encerrando sistema...");
                 yield false;
             }
-            default -> throw new IllegalArgumentException("Opcao invalida.");
+            default -> throw new IllegalArgumentException("Opção inválida.");
         };
     }
 
@@ -114,7 +114,7 @@ public class ProductConsoleMenu {
         String idMessage = createMode ? "Informe o ID: " : "Informe o ID do produto existente: ";
         String id = readText(idMessage);
         String name = readText("Informe o nome: ");
-        double price = readDouble("Informe o preco: ");
+        double price = readDouble("Informe o preço: ");
         int quantity = readInt("Informe a quantidade em estoque: ");
         Category category = readCategory();
 
@@ -122,12 +122,12 @@ public class ProductConsoleMenu {
     }
 
     private Category readCategory() {
-        System.out.println("Categorias disponiveis:");
+        System.out.println("Categorias disponíveis:");
         for (Category category : Category.values()) {
             System.out.printf("- %s (%s)%n", category.name(), switch (category) {
                 case FOOD -> "Alimentos";
-                case ELECTRONICS -> "Eletronicos";
-                case OFFICE -> "Escritorio";
+                case ELECTRONICS -> "Eletrônicos";
+                case OFFICE -> "Escritório";
             });
         }
 
@@ -146,7 +146,7 @@ public class ProductConsoleMenu {
                 System.out.print(message);
                 return Integer.parseInt(scanner.nextLine().trim());
             } catch (NumberFormatException exception) {
-                System.out.println("Valor inteiro invalido. Tente novamente.");
+                System.out.println("Valor inteiro inválido. Tente novamente.");
             }
         }
     }
@@ -157,14 +157,14 @@ public class ProductConsoleMenu {
                 System.out.print(message);
                 return Double.parseDouble(scanner.nextLine().trim().replace(',', '.'));
             } catch (NumberFormatException exception) {
-                System.out.println("Valor decimal invalido. Tente novamente.");
+                System.out.println("Valor decimal inválido. Tente novamente.");
             }
         }
     }
 
     private void printProduct(Product product) {
         System.out.printf(
-                "ID: %s | Nome: %s | Preco: %.2f | Quantidade: %d | Categoria: %s%n",
+                "ID: %s | Nome: %s | Preço: %.2f | Quantidade: %d | Categoria: %s%n",
                 product.id(),
                 product.name(),
                 product.price(),

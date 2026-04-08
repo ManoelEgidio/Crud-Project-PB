@@ -12,7 +12,7 @@
         <div>
             <p class="eyebrow">Cadastro</p>
             <h1 th:text="${pageTitle}">Novo produto</h1>
-            <p class="lead">Revise os dados antes de salvar para manter o catalogo consistente.</p>
+            <p class="lead">Revise os dados antes de salvar para manter o catálogo consistente.</p>
         </div>
         <a class="secondary-link" th:href="@{/products}" data-testid="back-link">Voltar</a>
     </section>
@@ -33,7 +33,7 @@
                 </label>
 
                 <label>
-                    <span>Preco</span>
+                    <span>Preço</span>
                     <input data-testid="product-price" type="text" name="price" th:value="${form.price()}">
                 </label>
 
